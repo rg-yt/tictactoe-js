@@ -1,0 +1,20 @@
+* {
+  font-family: "Bagel Fat One", system-ui;
+  font-weight: 600;
+  font-style: normal;
+  
+}
+
+body {
+    background-color: rgb(192, 188, 188);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.game {
+    border-radius: 1rem;
+    border:2px solid black;
+    min-width: 600px;
+    min-height: 600px;
+    background-color: gray;
+}
