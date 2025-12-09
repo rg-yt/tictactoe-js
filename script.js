@@ -1,10 +1,13 @@
 const gameboard = (function () {
-  const board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  let board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
   const updateBoard = (index, currentPlayer) => {
     if (typeof board[index] === "number" && index >= 0 && index <= 8) {
       board[index] = currentPlayer.marker;
+      return true;
     } else {
-      console.log("Must make a valid move");
+      console.log(`Move at ${index} is invalid. Must make a valid move!"`);
+      return false;
     }
   };
 
@@ -16,6 +19,10 @@ const gameboard = (function () {
     console.log(board.slice(6, 9).join(" | "));
   };
 
+  const resetBoard = () => {
+    board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  };
+
   const valuesAt = (array) => {
     const newArray = [];
     array.forEach((element) => {
@@ -23,7 +30,7 @@ const gameboard = (function () {
     });
     return newArray;
   };
-  return { board, updateBoard, showBoard, valuesAt };
+  return { board, updateBoard, showBoard, valuesAt, resetBoard };
 })();
 
 const Player = function (name, marker) {
@@ -41,14 +48,38 @@ const game = (function () {
     currentPlayer = currentPlayer === player1 ? player2 : player1;
   };
 
-  const takeTurn = (index) => {
-    this.updateBoard(index, currentPlayer);
-    switchPlayer();
+  const takeTurn = () => {
+    if (!gameboard.updateBoard(Math.floor(Math.random() * 9), currentPlayer)) {
+      takeTurn();
+    }
   };
 
-  const play = () => {};
+  const play = () => {
+    gameboard.resetBoard();
+    let gameActive = true;
+    while (gameActive) {
+      console.clear();
+      takeTurn();
+      gameboard.showBoard();
+      if (checkWin(currentPlayer)) {
+        console.log(`${currentPlayer.name} wins!`);
+        gameActive = false;
+      } else if (checkDraw()) {
+        console.log(`It's a tie!`);
+        gameActive = false;
+      } else {
+        switchPlayer();
+      }
+    }
+  };
 
-  const checkWin = (playerSymbol) => {
+  const checkDraw = () => {
+    return gameboard
+      .valuesAt([0, 1, 2, 3, 4, 5, 6, 7, 8])
+      .every((value) => typeof value === "string");
+  };
+
+  const checkWin = (player) => {
     const winningCombos = [
       [0, 1, 2],
       [3, 4, 5],
@@ -62,7 +93,7 @@ const game = (function () {
 
     let hasWon = false;
     winningCombos.forEach((combo) => {
-      if (gameboard.valuesAt(combo).every((value) => value === playerSymbol)) {
+      if (gameboard.valuesAt(combo).every((value) => value === player.marker)) {
         hasWon = true;
       }
     });
@@ -70,5 +101,5 @@ const game = (function () {
     return hasWon;
   };
 
-  return { getCurrentPlayer, switchPlayer, takeTurn, checkWin };
+  return { getCurrentPlayer, switchPlayer, takeTurn, play, checkDraw };
 })();
