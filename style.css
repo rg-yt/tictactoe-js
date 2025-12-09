@@ -11,7 +11,7 @@ body {
     flex-direction: column;
     align-items: center;
 }
-.game {
+.board {
     border-radius: 1rem;
     border:2px solid black;
     min-width: 600px;
