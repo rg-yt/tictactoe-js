@@ -11,14 +11,6 @@ const gameboard = (function () {
     }
   };
 
-  const showBoard = () => {
-    console.log(board.slice(0, 3).join(" | "));
-    console.log("---------");
-    console.log(board.slice(3, 6).join(" | "));
-    console.log("---------");
-    console.log(board.slice(6, 9).join(" | "));
-  };
-
   const resetBoard = () => {
     board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
   };
@@ -30,7 +22,7 @@ const gameboard = (function () {
     });
     return newArray;
   };
-  return { board, updateBoard, showBoard, valuesAt, resetBoard };
+  return { updateBoard, valuesAt, resetBoard };
 })();
 
 const Player = function (name, marker) {
@@ -48,25 +40,13 @@ const game = (function () {
     currentPlayer = currentPlayer === player1 ? player2 : player1;
   };
 
-  const takeTurn = () => {
-    if (!gameboard.updateBoard(Math.floor(Math.random() * 9), currentPlayer)) {
-      takeTurn();
-    }
-  };
-
-  const play = () => {
-    gameboard.resetBoard();
-    let gameActive = true;
-    while (gameActive) {
-      console.clear();
-      takeTurn();
-      gameboard.showBoard();
+  const round = (box) => {
+    if (gameboard.updateBoard(box.textContent, getCurrentPlayer())) {
+      box.textContent = currentPlayer.marker;
       if (checkWin(currentPlayer)) {
         console.log(`${currentPlayer.name} wins!`);
-        gameActive = false;
       } else if (checkDraw()) {
         console.log(`It's a tie!`);
-        gameActive = false;
       } else {
         switchPlayer();
       }
@@ -93,7 +73,11 @@ const game = (function () {
 
     let hasWon = false;
     winningCombos.forEach((combo) => {
-      if (gameboard.valuesAt(combo).every((value) => value === player.marker)) {
+      if (
+        gameboard
+          .valuesAt(combo)
+          .every((value) => value === getCurrentPlayer().marker)
+      ) {
         hasWon = true;
       }
     });
@@ -101,5 +85,14 @@ const game = (function () {
     return hasWon;
   };
 
-  return { getCurrentPlayer, switchPlayer, takeTurn, play, checkDraw };
+  return { getCurrentPlayer, switchPlayer, checkDraw, round };
+})();
+
+const gameDisplay = (function () {
+  const boxes = document.querySelectorAll(".box");
+  boxes.forEach((box) => {
+    box.addEventListener("click", function () {
+      game.round(box);
+    });
+  });
 })();
