@@ -29,6 +29,37 @@ const Player = function (name, marker) {
   return { name, marker };
 };
 
+const gameDisplay = (function () {
+  const setGameDisplay = () => {
+    const boxes = document.querySelectorAll(".box");
+    boxes.forEach((box) => {
+      box.addEventListener("click", function onClick() {
+        game.round(box);
+        box.removeEventListener("click", onClick);
+      });
+    });
+  };
+
+  const lockGameDisplay = () => {
+    const boxes = document.querySelectorAll(".box");
+    boxes.forEach((box) => {
+      box.replaceWith(box.cloneNode(true));
+    });
+  };
+
+  const resetGameDisplay = () => {
+    const boxes = document.querySelectorAll(".box");
+    let index = 0;
+    boxes.forEach((box) => {
+      box.textContent = index;
+      index++;
+    });
+    setGameDisplay();
+  };
+
+  return { setGameDisplay, lockGameDisplay, resetGameDisplay };
+})();
+
 const game = (function () {
   let player1 = Player("Tyler", "X");
   let player2 = Player("Katie", "O");
@@ -36,17 +67,27 @@ const game = (function () {
 
   const getCurrentPlayer = () => currentPlayer;
 
+  const play = () => {
+    gameDisplay.resetGameDisplay();
+    player1 = Player("Tyler", "X");
+    player2 = Player("Katie", "O");
+    gameboard.resetBoard();
+    currentPlayer = player1;
+  };
+
   const switchPlayer = () => {
     currentPlayer = currentPlayer === player1 ? player2 : player1;
   };
 
   const round = (box) => {
-    if (gameboard.updateBoard(box.textContent, getCurrentPlayer())) {
+    if (gameboard.updateBoard(box.id, getCurrentPlayer())) {
       box.textContent = currentPlayer.marker;
       if (checkWin(currentPlayer)) {
         console.log(`${currentPlayer.name} wins!`);
+        gameDisplay.lockGameDisplay();
       } else if (checkDraw()) {
         console.log(`It's a tie!`);
+        gameDisplay.lockGameDisplay();
       } else {
         switchPlayer();
       }
@@ -79,20 +120,13 @@ const game = (function () {
           .every((value) => value === getCurrentPlayer().marker)
       ) {
         hasWon = true;
+        gameDisplay;
       }
     });
 
     return hasWon;
   };
 
-  return { getCurrentPlayer, switchPlayer, checkDraw, round };
+  return { getCurrentPlayer, switchPlayer, checkDraw, round, play };
 })();
-
-const gameDisplay = (function () {
-  const boxes = document.querySelectorAll(".box");
-  boxes.forEach((box) => {
-    box.addEventListener("click", function () {
-      game.round(box);
-    });
-  });
-})();
+game.play();

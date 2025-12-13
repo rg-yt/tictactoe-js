@@ -28,8 +28,7 @@ body {
 .box {
   text-align: center;
   background: gray;
-  font-size: 8em;
-   
+  font-size: 8em;  
 }
 .box:hover {
   background-color: darkgray;
@@ -38,4 +37,7 @@ body {
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+}
+.hide {
+  display: none;
 }
